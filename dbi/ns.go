@@ -35,12 +35,12 @@ func splitNamespace(name string) (ns []string) {
 }
 
 // createNamespace returns metric namespace
-func createNamespace(dbName, queryName, resultName, instancePrefix, instanceValue string) string {
+func createNamespace(dbName, resultName, instancePrefix, instanceValue string) string {
 
-	ns := append(nsPrefix, dbName, queryName)
+	ns := append(nsPrefix, dbName)
 
-	//append resultName (omit if empty or equal to queryName)
-	if isNotEmpty(resultName) && (queryName != resultName) {
+	//append resultName (omit if empty)
+	if isNotEmpty(resultName) {
 		ns = append(ns, resultName)
 	}
 

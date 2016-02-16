@@ -27,11 +27,9 @@ import (
 )
 
 func main() {
-
 	plugin.Start(
 		plugin.NewPluginMeta(dbi.Name, dbi.Version, dbi.Type, []string{}, []string{plugin.SnapGOBContentType}, plugin.ConcurrencyCount(1)),
 		dbi.New(),
 		os.Args[1],
 	)
-
 }

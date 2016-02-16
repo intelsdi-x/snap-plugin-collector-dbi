@@ -10,7 +10,7 @@
         "collector": {
             "dbi": {
                 "all": {
-			"setfile": "$SNAP_DBI_PLUGIN_DIR/examples/configs/setfiles/sql_example.json"
+                    "setfile": "$SNAP_DBI_PLUGIN_DIR/examples/configs/setfiles/dbi_openstack.json"					
                 }
             }
         },

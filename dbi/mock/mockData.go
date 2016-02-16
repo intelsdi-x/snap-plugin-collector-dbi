@@ -23,25 +23,25 @@ var (
 	// Mts is a mocked metrics
 	Mts = []plugin.PluginMetricType{
 
-		// 1) For db = dbName1 one query=qName1 is executed which has no additional info (like name or prefix)
-		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName1", "qName1", "categoryA"}},
-		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName1", "qName1", "categoryB"}},
-		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName1", "qName1", "categoryC"}},
+		// 1) For db = dbName1 one query=q1 is executed which has no additional info (like name or prefix)
+		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName1", "categoryA"}},
+		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName1", "categoryB"}},
+		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName1", "categoryC"}},
 
 		// 2) For db = dbName2 two queries are executed:
-		// a) query=qName1 - has no additional info (like name or prefix)
-		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "qName1", "categoryA"}},
-		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "qName1", "categoryB"}},
-		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "qName1", "categoryC"}},
+		// a) query=q1 - has no additional info (like name or prefix)
+		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "categoryA"}},
+		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "categoryB"}},
+		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "categoryC"}},
 
-		// b) query=qName2 - has defined additional info (like resultName or instancePrefix) which are appended to a namespace
-		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "qName2", "rName1", "category_prefix", "categoryA"}},
-		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "qName2", "rName1", "category_prefix", "categoryB"}},
-		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "qName2", "rName1", "category_prefix", "categoryC"}},
+		// b) query=q2 - has defined additional info (like resultName or instancePrefix) which are appended to a namespace
+		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "rName1", "category_prefix", "categoryA"}},
+		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "rName1", "category_prefix", "categoryB"}},
+		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "rName1", "category_prefix", "categoryC"}},
 
-		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "qName2", "rName2", "categoryA"}},
-		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "qName2", "rName2", "categoryB"}},
-		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "qName2", "rName2", "categoryC"}},
+		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "rName2", "categoryA"}},
+		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "rName2", "categoryB"}},
+		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "rName2", "categoryC"}},
 	}
 
 	// MtsWhiteCard is a mocked metric contains white card
@@ -62,7 +62,7 @@ var (
 	FileCont = []byte(`{
 		    "queries": [
 		        {
-		            "name": "qName1",
+		            "name": "q1",
 		            "statement": "statementA",
 		            "results": [
 		                {   "name": "",                
@@ -72,7 +72,7 @@ var (
 		            ]
 		        },
 		        {
-		            "name": "qName2",
+		            "name": "q2",
 		            "statement": "statementB",
 		            "results": [
 		                {
@@ -102,7 +102,7 @@ var (
 		            },
 		            "dbqueries": [
 		                {
-		                    "query": "qName1"
+		                    "query": "q1"
 		                }
 		            ]
 		        },
@@ -118,10 +118,10 @@ var (
 		            "selectdb": "slctdb",
 		            "dbqueries": [
 						{
-		                    "query": "qName1"                
+		                    "query": "q1"                
 						},
 		                {
-		                    "query": "qName2"
+		                    "query": "q2"
 		                }
 		            ]
 		        },
@@ -138,7 +138,7 @@ var (
 		
 		            "dbqueries": [
 		                {
-		                    "query": "qName1"
+		                    "query": "q1"
 		                }
 		            ]
 		        }

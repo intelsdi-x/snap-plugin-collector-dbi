@@ -2,7 +2,7 @@
     "queries": [
         {
             "name": "wsrep_ready",
-            "statement": "select replace(lower(VARIABLE_NAME), 'wsrep_', 'cluster.') as metric,  cast(replace(replace(VARIABLE_VALUE, 'ON', '1'), 'OFF', '0') as unsigned int) as value from information_schema.GLOBAL_STATUS where VARIABLE_NAME IN ('wsrep_ready', 'wsrep_connected')",
+            "statement": "select replace(lower(VARIABLE_NAME), 'wsrep_', 'cluster/') as metric,  cast(replace(replace(VARIABLE_VALUE, 'ON', '1'), 'OFF', '0') as unsigned int) as value from information_schema.GLOBAL_STATUS where VARIABLE_NAME IN ('wsrep_ready', 'wsrep_connected')",
             "results": [
                 {
                     "instance_from": "metric",
@@ -12,7 +12,7 @@
         },
         {
             "name": "wsrep_cluster_status",
-            "statement": "select replace(replace(lower(VARIABLE_NAME), 'wsrep_', ''), '_', '.') as metric, cast(replace(replace(replace(VARIABLE_VALUE, 'Primary', '1'), 'Non-Primary', '2'), 'Disconnected', '3') as unsigned int) as value from information_schema.GLOBAL_STATUS where VARIABLE_NAME = 'wsrep_cluster_status'",
+            "statement": "select replace(replace(lower(VARIABLE_NAME), 'wsrep_', ''), '_', '/') as metric, cast(replace(replace(replace(VARIABLE_VALUE, 'Primary', '1'), 'Non-Primary', '2'), 'Disconnected', '3') as unsigned int) as value from information_schema.GLOBAL_STATUS where VARIABLE_NAME = 'wsrep_cluster_status'",
             "results": [
                 {
                     "instance_from": "metric",
@@ -22,7 +22,7 @@
         },
         {
             "name": "wsrep_cluster",
-            "statement": "select replace(replace(lower(VARIABLE_NAME), 'wsrep_', 'cluster.'), 'cluster_size', 'size') as metric, cast(VARIABLE_VALUE as unsigned int) as value from information_schema.GLOBAL_STATUS where VARIABLE_NAME IN ('wsrep_cluster_size', 'wsrep_replicated', 'wsrep_replicated_bytes', 'wsrep_received_bytes', 'wsrep_received', 'wsrep_local_commits', 'wsrep_local_cert_failures', 'wsrep_local_send_queue', 'Slow_queries')",
+            "statement": "select replace(replace(lower(VARIABLE_NAME), 'wsrep_', 'cluster/'), 'cluster_size', 'size') as metric, cast(VARIABLE_VALUE as unsigned int) as value from information_schema.GLOBAL_STATUS where VARIABLE_NAME IN ('wsrep_cluster_size', 'wsrep_replicated', 'wsrep_replicated_bytes', 'wsrep_received_bytes', 'wsrep_received', 'wsrep_local_commits', 'wsrep_local_cert_failures', 'wsrep_local_send_queue', 'Slow_queries')",
             "results": [
                 {
                     "instance_from": "metric",

@@ -1,0 +1,201 @@
+{
+    "databases": [
+        {
+            "name": "cinder",
+            "driver": "mysql",
+            "driver_option": {
+                "host": "123.456.78.9",
+                "port": "3306",
+                "username": "cinder",
+                "password": "passwd",
+                "dbname": "cinder"
+            },
+            "dbqueries": [
+                {
+                    "query": "cinder_services_up"
+                },
+                {
+                    "query": "cinder_services_down"
+                },
+                {
+                    "query": "cinder_services_disabled"
+                }
+            ]
+        },
+        {
+            "name": "neutron",
+            "driver": "mysql",
+            "driver_option": {
+                "host": "123.456.78.9",
+                "port": "3306",
+                "username": "neutron",
+                "password": "passwd",
+                "dbname": "neutron"
+            },
+            "dbqueries": [
+                {
+                    "query": "neutron_agents_down"
+                },
+                {
+                    "query": "neutron_agents_up"
+                },
+                {
+                    "query": "neutron_agents_disabled"
+                }
+            ]
+        },
+        {
+            "name": "nova",
+            "driver": "mysql",
+            "driver_option": {
+                "host": "123.456.78.9",
+                "port": "3306",
+                "username": "nova",
+                "password": "passwd",
+                "dbname": "nova"
+            },
+            "dbqueries": [
+                {
+                    "query": "nova_wsrep_ready"
+                },
+                {
+                    "query": "nova_wsrep_cluster_status"
+                },
+                {
+                    "query": "nova_wsrep_cluster"
+                },
+                {
+                    "query": "nova_services_down"
+                },
+                {
+                    "query": "nova_services_up"
+                },
+                {
+                    "query": "nova_services_disabled"
+                }
+            ]
+        }
+    ],
+    "queries": [
+        {
+            "name": "cinder_services_down",
+            "statement": "select concat_ws('/', 'services', replace(replace(s1.binary, 'nova-', ''), 'cinder-', ''), 'down') as metric, count(s2.id) as value from services s1 left outer join services s2 on s1.id = s2.id and s1.disabled=0 and s1.deleted=0 and timestampdiff(SECOND,s1.updated_at,utc_timestamp())>120 group by s1.binary",
+            "results": [
+                {
+                    "instance_from": "metric",
+                    "value_from": "value"
+                }
+            ]
+        },
+        {
+            "name": "cinder_services_up",
+            "statement": "select concat_ws('/', 'services', replace(replace(s1.binary, 'nova-', ''), 'cinder-', ''), 'up') as metric, count(s2.id) as value from services s1 left outer join services s2 on s1.id = s2.id and s1.disabled=0 and s1.deleted=0 and timestampdiff(SECOND,s1.updated_at,utc_timestamp())<=120 group by s1.binary",
+            "results": [
+                {
+                    "instance_from": "metric",
+                    "value_from": "value"
+                }
+            ]
+        },
+        {
+            "name": "cinder_services_disabled",
+            "statement": "select concat_ws('/', 'services', replace(replace(s1.binary, 'nova-', ''), 'cinder-', ''), 'disabled') as metric, count(s2.id) as value from services s1 left outer join services s2 on s1.id = s2.id and s2.disabled = 1 and s1.deleted=0 group by s1.binary",
+            "results": [
+                {
+                    "instance_from": "metric",
+                    "value_from": "value"
+                }
+            ]
+        },
+        {
+            "name": "neutron_agents_down",
+            "statement": "select concat_ws('/', 'agents', replace(replace(a1.binary, '-agent', ''), 'neutron-', ''), 'down') as metric, count(a2.id) as value from agents a1 left outer join agents a2 on a1.id = a2.id and a1.admin_state_up=1 and timestampdiff(SECOND,a1.heartbeat_timestamp,utc_timestamp())>60 group by a1.binary",
+            "results": [
+                {
+                    "instance_from": "metric",
+                    "value_from": "value"
+                }
+            ]
+        },
+        {
+            "name": "neutron_agents_up",
+            "statement": "select concat_ws('/', 'agents', replace(replace(a1.binary, '-agent', ''), 'neutron-', ''), 'up') as metric, count(a2.id) as value from agents a1 left outer join agents a2 on a1.id = a2.id and a1.admin_state_up=1 and timestampdiff(SECOND,a1.heartbeat_timestamp,utc_timestamp())<60  group by a1.binary",
+            "results": [
+                {
+                    "instance_from": "metric",
+                    "value_from": "value"
+                }
+            ]
+        },
+        {
+            "name": "neutron_agents_disabled",
+            "statement": "select concat_ws('/', 'agents', replace(replace(a1.binary, '-agent', ''), 'neutron-', ''), 'disabled') as metric, count(a2.id) as value from agents a1 left outer join agents a2 on a1.id = a2.id and a1.admin_state_up=0 group by a1.binary",
+            "results": [
+                {
+                    "instance_from": "metric",
+                    "value_from": "value"
+                }
+            ]
+        },
+        {
+            "name": "nova_wsrep_ready",
+            "statement": "select replace(lower(VARIABLE_NAME), 'wsrep_', 'cluster/') as metric,  cast(replace(replace(VARIABLE_VALUE, 'ON', '1'), 'OFF', '0') as unsigned int) as value from information_schema.GLOBAL_STATUS where VARIABLE_NAME IN ('wsrep_ready', 'wsrep_connected')",
+            "results": [
+                {
+                    "instance_from": "metric",
+                    "value_from": "value"
+                }
+            ]
+        },
+        {
+            "name": "nova_wsrep_cluster_status",
+            "statement": "select replace(replace(lower(VARIABLE_NAME), 'wsrep_', ''), '_', '/') as metric, cast(replace(replace(replace(VARIABLE_VALUE, 'Primary', '1'), 'Non-Primary', '2'), 'Disconnected', '3') as unsigned int) as value from information_schema.GLOBAL_STATUS where VARIABLE_NAME = 'wsrep_cluster_status'",
+            "results": [
+                {
+                    "instance_from": "metric",
+                    "value_from": "value"
+                }
+            ]
+        },
+        {
+            "name": "nova_wsrep_cluster",
+            "statement": "select replace(replace(lower(VARIABLE_NAME), 'wsrep_', 'cluster/'), 'cluster_size', 'size') as metric, cast(VARIABLE_VALUE as unsigned int) as value from information_schema.GLOBAL_STATUS where VARIABLE_NAME IN ('wsrep_cluster_size', 'wsrep_replicated', 'wsrep_replicated_bytes', 'wsrep_received_bytes', 'wsrep_received', 'wsrep_local_commits', 'wsrep_local_cert_failures', 'wsrep_local_send_queue', 'Slow_queries')",
+            "results": [
+                {
+                    "instance_from": "metric",
+                    "value_from": "value"
+                }
+            ]
+        },
+        {
+            "name": "nova_services_down",
+            "statement": "select concat_ws('/', 'services', replace(replace(s1.binary, 'nova-', ''), 'cinder-', ''), 'down') as metric, count(s2.id) as value from services s1 left outer join services s2 on s1.id = s2.id and s1.disabled=0 and s1.deleted=0 and timestampdiff(SECOND,s1.updated_at,utc_timestamp())>120 group by s1.binary",
+            "results": [
+                {
+                    "instance_from": "metric",
+                    "value_from": "value"
+                }
+            ]
+        },
+        {
+            "name": "nova_services_up",
+            "statement": "select concat_ws('/', 'services', replace(replace(s1.binary, 'nova-', ''), 'cinder-', ''), 'up') as metric, count(s2.id) as value from services s1 left outer join services s2 on s1.id = s2.id and s1.disabled=0 and s1.deleted=0 and timestampdiff(SECOND,s1.updated_at,utc_timestamp())<=120 group by s1.binary",
+            "results": [
+                {
+                    "instance_from": "metric",
+                    "value_from": "value"
+                }
+            ]
+        },
+        {
+            "name": "nova_services_disabled",
+            "statement": "select concat_ws('/', 'services', replace(replace(s1.binary, 'nova-', ''), 'cinder-', ''), 'disabled') as metric, count(s2.id) as value from services s1 left outer join services s2 on s1.id = s2.id and s2.disabled = 1 and s1.deleted=0 group by s1.binary",
+            "results": [
+                {
+                    "instance_from": "metric",
+                    "value_from": "value"
+                }
+            ]
+        }
+    ]
+}

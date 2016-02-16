@@ -226,7 +226,11 @@ func (dbiPlg *DbiPlugin) executeQueries() (map[string]interface{}, error) {
 						instance = fmt.Sprintf("%s", out[res.InstanceFrom][index])
 					}
 
-					key := createNamespace(dbName, queryName, resName, res.InstancePrefix, instance)
+					key := createNamespace(dbName, resName, res.InstancePrefix, instance)
+
+					if _, exist := data[key]; exist {
+						return nil, fmt.Errorf("Namespace `%+s` has to be unique, but is not", key)
+					}
 					data[key] = value
 				}
 			}
