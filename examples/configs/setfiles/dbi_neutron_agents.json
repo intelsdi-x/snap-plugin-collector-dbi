@@ -1,0 +1,58 @@
+{
+    "queries": [
+        {
+            "name": "agents_down",
+            "statement": "select concat_ws('/', 'agents', replace(replace(a1.binary, '-agent', ''), 'neutron-', ''), 'down') as metric, count(a2.id) as value from agents a1 left outer join agents a2 on a1.id = a2.id and a1.admin_state_up=1 and timestampdiff(SECOND,a1.heartbeat_timestamp,utc_timestamp())>60 group by a1.binary",
+            "results": [
+                {
+                    "instance_from": "metric",
+                    "value_from": "value"
+                }
+            ]
+        },
+        {
+            "name": "agents_up",
+            "statement": "select concat_ws('/', 'agents', replace(replace(a1.binary, '-agent', ''), 'neutron-', ''), 'up') as metric, count(a2.id) as value from agents a1 left outer join agents a2 on a1.id = a2.id and a1.admin_state_up=1 and timestampdiff(SECOND,a1.heartbeat_timestamp,utc_timestamp())<60  group by a1.binary",
+            "results": [
+                {
+                    "instance_from": "metric",
+                    "value_from": "value"
+                }
+            ]
+        },
+        {
+            "name": "agents_disabled",
+            "statement": "select concat_ws('/', 'agents', replace(replace(a1.binary, '-agent', ''), 'neutron-', ''), 'disabled') as metric, count(a2.id) as value from agents a1 left outer join agents a2 on a1.id = a2.id and a1.admin_state_up=0 group by a1.binary",
+            "results": [
+                {
+                    "instance_from": "metric",
+                    "value_from": "value"
+                }
+            ]
+        }
+    ],
+    "databases": [
+        {
+            "name": "neutron",
+            "driver": "mysql",
+            "driver_option": {
+                "host": "123.456.78.9",
+                "port": "3306",
+                "username": "neutron",
+                "password": "passwd",
+                "dbname": "neutron"
+            },
+            "dbqueries": [
+                {
+                    "query": "agents_down"
+                },
+                {
+                    "query": "agents_up"
+                },
+                {
+                    "query": "agents_disabled"
+                }
+            ]
+        }
+    ]
+}

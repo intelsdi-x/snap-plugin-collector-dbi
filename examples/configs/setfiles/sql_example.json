@@ -1,0 +1,70 @@
+{
+    "queries": [	
+	    {
+            "name": "environment",
+            "statement": "select station, temperature, humidity from environment",
+            "results": [
+                {
+                    "name": "temp",
+                    "instance_from": "station",
+                    "instance_prefix": "europe",
+                    "value_from": "temperature"
+                },
+                {
+                    "name": "hum",
+                    "instance_from": "station",
+                    "value_from": "humidity"
+                }
+            ]
+        },
+		
+        {
+            "name": "out_of_stock",
+            "statement": "SELECT category, COUNT(*) AS value FROM product WHERE in_stock = 0 GROUP BY category",
+            "results": [
+                {
+                    "name": "",
+                    "instance_from": "category",
+                    "value_from": "value"
+                }
+            ]
+        }
+		
+    ],
+	
+    "databases": [
+        {
+            "name": "meteo",
+            "driver": "mysql",
+            "driver_option": {
+                "host": "localhost",
+                "port": "3306",
+                "username": "monty",
+                "password": "some_pass",
+                "dbname": "mydb"
+            },
+            "dbqueries": [
+                {
+                    "query": "environment"
+                }
+            ]
+        },
+        {
+            "name": "warehouse",
+            "driver": "mysql",
+            "driver_option": {
+                "host": "localhost",
+                "username": "monty",
+                "password": "some_pass",
+                "dbname": "mydb"
+            },
+            "selectdb": "stockdb",
+            "dbqueries": [
+                {
+                    "query": "out_of_stock"
+                }
+            ]
+        }
+    ]
+}
+		 
