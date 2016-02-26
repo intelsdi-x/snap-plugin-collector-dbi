@@ -27,7 +27,7 @@ The plugin is used in the [snap framework] (http://github.com/intelsdi-x/snap).
 ### System Requirements
 
 - Linux system
-- Access to database (currently following sql drivers are supported: **MySQL**, **PostgreSQL**)
+- Access to database (currently the following SQL Drivers are supported: **MySQL**, **PostgreSQL**)
 
 ### Installation
 
@@ -50,9 +50,9 @@ This builds the plugin in `/build/rootfs/`
 
 * Set up the [snap framework](https://github.com/intelsdi-x/snap/blob/master/README.md#getting-started)
 
-* Create configuration file (called as a setfile) in which will be defined databases, queries and rules how interpret the results (see examplary in [examples/configs/setfiles](https://github.com/intelsdi-x/snap-plugin-collector-dbi/blob/master/examples/configs/setfiles))
+* Create configuration file (called as a setfile) in which will be defined databases, queries and rules how interpret the results, see exemplary in [examples/configs/setfiles](https://github.com/intelsdi-x/snap-plugin-collector-dbi/blob/master/examples/configs/setfiles)
 
-* Set up field `setfile` in Global Config as a path to dbi plugin configuration file. Sample Global Config is available in [examples/configs/snap-config-sample.json] (https://github.com/intelsdi-x/snap-plugin-collector-dbi/blob/master/examples/configs/snap-config-sample.json)
+* Set up field `setfile` in Global Config as a path to dbi plugin configuration file, see exemplary Snap Global Config: in [examples/configs/snap-config-sample.json] (https://github.com/intelsdi-x/snap-plugin-collector-dbi/blob/master/examples/configs/snap-config-sample.json)
  
 Notice that this plugin is a generic plugin, i.e. it cannot work without configuration, because there is no reasonable default behavior.
 
@@ -100,7 +100,7 @@ By default metrics are gathered once per second.
 
 Example of running snap dbi collector of and writing results to file.
 
-Create configuration file for dbi plugin (example from [examples/configs/setfiles/dbi_openstack.json](https://github.com/intelsdi-x/snap-plugin-collector-dbi/blob/dbi_plugin/examples/configs/setfiles/dbi_openstack.json)
+Create configuration file for dbi plugin (example from [examples/configs/setfiles/dbi_openstack.json](https://github.com/intelsdi-x/snap-plugin-collector-dbi/blob/dbi_plugin/examples/configs/setfiles/dbi_openstack.json))
 ```json
 {
     "databases": [

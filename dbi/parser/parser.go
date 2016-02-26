@@ -51,13 +51,13 @@ func GetDBItemsFromConfig(fName string) (map[string]*dtype.Database, map[string]
 	}
 
 	if len(data) == 0 {
-		return nil, nil, fmt.Errorf("SQL settings file `%s` is empty", fName)
+		return nil, nil, fmt.Errorf("SQL settings file `%v` is empty", fName)
 	}
 
 	err = json.Unmarshal(data, &sqlCnf)
 
 	if err != nil {
-		return nil, nil, fmt.Errorf("Invalid structure of file `%s` to be unmarshalled", fName)
+		return nil, nil, fmt.Errorf("Invalid structure of file `%v` to be unmarshalled", fName)
 	}
 
 	p := &Parser{

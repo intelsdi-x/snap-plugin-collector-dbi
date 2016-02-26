@@ -400,6 +400,37 @@ func TestCollectMetrics(t *testing.T) {
 
 	})
 
+	Convey("when metric's value is a timestamp - special usecase", t, func() {
+		// to cover func fixDataType for time.Time case
+		createMockFile()
+		defer deleteMockFile()
+
+		dbiPlugin := New()
+		mc := &mcMock{stmts: make(map[string]*sql.Stmt)}
+
+		//mockExecution outputs
+		mc.mockExecution(
+			nil, // errOpen
+			nil, // errClose
+			nil, // errPing
+			nil, // errSwitchToDB
+			nil, // errQuery
+			mockdata.QueryOutputTimestamp, // outQuery
+		)
+
+		mts := mockdata.Mts
+		config := cdata.NewNode()
+		config.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
+		for i, _ := range mts {
+			mts[i].Config_ = config
+		}
+
+		So(func() { dbiPlugin.CollectMetrics(mts) }, ShouldNotPanic)
+		results, err := dbiPlugin.CollectMetrics(mts)
+		So(err, ShouldBeNil)
+		So(len(results), ShouldEqual, len(mts))
+	})
+
 	Convey("collect metrics successfully", t, func() {
 		createMockFile()
 		defer deleteMockFile()
@@ -431,7 +462,7 @@ func TestCollectMetrics(t *testing.T) {
 			So(len(results), ShouldEqual, len(mts))
 		})
 
-		Convey("when task manifest contains a metric with white card", func() {
+		Convey("when task manifest contains a metric with asterisk", func() {
 			mtsOne := mockdata.MtsWhiteCard
 			mtsAll := mockdata.Mts
 			config := cdata.NewNode()
@@ -443,6 +474,7 @@ func TestCollectMetrics(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(len(results), ShouldEqual, len(mtsAll))
 		})
+
 	})
 
 }

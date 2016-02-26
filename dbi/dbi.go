@@ -35,7 +35,7 @@ const (
 	// Name of plugin
 	Name = "dbi"
 	// Version of plugin
-	Version = 1
+	Version = 2
 	// Type of plugin
 	Type = plugin.CollectorPluginType
 )
@@ -145,6 +145,7 @@ func (dbiPlg *DbiPlugin) GetMetricTypes(cfg plugin.PluginConfigType) ([]plugin.P
 // New returns snap-plugin-collector-dbi instance
 func New() *DbiPlugin {
 	dbiPlg := &DbiPlugin{databases: map[string]*dtype.Database{}, queries: map[string]*dtype.Query{}, initialized: false}
+
 	return dbiPlg
 }
 
@@ -214,24 +215,31 @@ func (dbiPlg *DbiPlugin) executeQueries() (map[string]interface{}, error) {
 
 			for resName, res := range dbiPlg.queries[queryName].Results {
 				instanceOk := false
-				if !isEmpty(res.InstanceFrom) {
-					if len(out[res.InstanceFrom]) == len(out[res.ValueFrom]) {
+
+				// to avoid inconsistency of columns names caused by capital letters (especially for postgresql driver)
+				instanceFrom := strings.ToLower(res.InstanceFrom)
+				valueFrom := strings.ToLower(res.ValueFrom)
+
+				if !isEmpty(instanceFrom) {
+					if len(out[instanceFrom]) == len(out[valueFrom]) {
 						instanceOk = true
 					}
 				}
 
-				for index, value := range out[res.ValueFrom] {
+				for index, value := range out[valueFrom] {
 					instance := ""
+
 					if instanceOk {
-						instance = fmt.Sprintf("%s", out[res.InstanceFrom][index])
+						instance = fmt.Sprintf("%v", fixDataType(out[instanceFrom][index]))
 					}
 
 					key := createNamespace(dbName, resName, res.InstancePrefix, instance)
 
 					if _, exist := data[key]; exist {
-						return nil, fmt.Errorf("Namespace `%+s` has to be unique, but is not", key)
+						return nil, fmt.Errorf("Namespace `%s` has to be unique, but is not", key)
 					}
-					data[key] = value
+
+					data[key] = fixDataType(value)
 				}
 			}
 		} // end of range db_queries_to_execute
@@ -242,4 +250,23 @@ func (dbiPlg *DbiPlugin) executeQueries() (map[string]interface{}, error) {
 	}
 
 	return data, nil
+}
+
+// fixDataType converts `arg` to a string if its type is an array of bytes or time.Time, in other case there is no change
+func fixDataType(arg interface{}) interface{} {
+	var result interface{}
+
+	switch arg.(type) {
+	case []byte:
+		result = string(arg.([]byte))
+
+	case time.Time:
+		// gob: type time.Time is not registered for gob interface, conversion to string
+		result = arg.(time.Time).String()
+
+	default:
+		result = arg
+	}
+
+	return result
 }
