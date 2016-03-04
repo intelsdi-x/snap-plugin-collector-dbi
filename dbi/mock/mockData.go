@@ -16,7 +16,11 @@ limitations under the License.
 
 package mockdata
 
-import "github.com/intelsdi-x/snap/control/plugin"
+import (
+	"time"
+
+	"github.com/intelsdi-x/snap/control/plugin"
+)
 
 var (
 
@@ -51,8 +55,14 @@ var (
 
 	// QueryOutput is a mocked query output
 	QueryOutput = map[string][]interface{}{
-		"category": []interface{}{"categoryA", "categoryB", "categoryC"},
+		"category": []interface{}{[]byte(`categoryA`), []byte(`categoryB`), "categoryC"},
 		"value":    []interface{}{-10.5, 0.0, 10.5},
+	}
+
+	// QueryOutputTimestamp is a mocked query output, where values are timestamps
+	QueryOutputTimestamp = map[string][]interface{}{
+		"category": []interface{}{[]byte(`categoryA`), []byte(`categoryB`), "categoryC"},
+		"value":    []interface{}{time.Now(), time.Now().Add(1 * time.Hour), time.Now().Add(2 * time.Hour)},
 	}
 
 	// FileName is a path of mock setfile

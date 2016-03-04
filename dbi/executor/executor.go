@@ -18,6 +18,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // Execution is an interface for mocking purposes of sql functions like open(), ping(), exec(), close() etc.
@@ -73,7 +74,7 @@ func (se *SQLExecutor) Query(name, statement string) (map[string][]interface{}, 
 	defer rows.Close()
 
 	if err != nil {
-		return nil, fmt.Errorf("Cannot execute query `%+v`, err=%+v\n", statement, err)
+		return nil, fmt.Errorf("Cannot execute query `%+v`, err=%+v", statement, err)
 	}
 
 	// get query output (rows) and parse it to map
@@ -103,7 +104,8 @@ func (se *SQLExecutor) Query(name, statement string) (map[string][]interface{}, 
 		}
 
 		for i, val := range vals {
-			table[cols[i]] = append(table[cols[i]], val)
+			columnName := strings.ToLower(cols[i])
+			table[columnName] = append(table[columnName], val)
 		}
 		cnt++
 	} // end of row.Next()
