@@ -33,12 +33,12 @@ Once you're ready to contribute code back to this repo, start with these steps:
 * Contributors will review your pull request, suggest changes, and merge it when it’s ready and/or offer feedback
 * To report a bug or issue, please open a new issue against this repository
 
-If you have questions feel free to contact the [maintainers](https://github.com/intelsdi-x/snap/blob/master/README.md#maintainers).
+If you have questions feel free to contact the [maintainers](https://github.com/intelsdi-x/snap/blob/master/README.md#maintainers) by tagging them: @intelsdi-x/plugin-maintainers.
 
 ## Contributing Examples
 The most immediately helpful way you can benefit this project is by cloning the repository, adding some further examples and submitting a pull request.
 
-Have you written a blog post about how you use [snap](http://github.com/intelsdi-x/snap) and/or this plugin? Send it to us!
+Have you written a blog post about how you use snap? Send it to us [on Gitter](https://gitter.im/intelsdi-x/snap)!
 
 
 ## Contribute Elsewhere

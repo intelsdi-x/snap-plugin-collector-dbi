@@ -48,11 +48,6 @@ var (
 		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "dbName2", "rName2", "categoryC"}},
 	}
 
-	// MtsWhiteCard is a mocked metric contains white card
-	MtsWhiteCard = []plugin.PluginMetricType{
-		plugin.PluginMetricType{Namespace_: []string{"intel", "dbi", "*"}},
-	}
-
 	// QueryOutput is a mocked query output
 	QueryOutput = map[string][]interface{}{
 		"category": []interface{}{[]byte(`categoryA`), []byte(`categoryB`), "categoryC"},

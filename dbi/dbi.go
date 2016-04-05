@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"regexp"
 	"strings"
 	"time"
 
@@ -35,7 +34,7 @@ const (
 	// Name of plugin
 	Name = "dbi"
 	// Version of plugin
-	Version = 2
+	Version = 3
 	// Type of plugin
 	Type = plugin.CollectorPluginType
 )
@@ -80,31 +79,17 @@ func (dbiPlg *DbiPlugin) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin
 	hostname, _ := os.Hostname()
 
 	for _, m := range mts {
-
-		// prepare namespace to regular expression
-		name := joinNamespace(m.Namespace())
-		name = strings.Replace(name, "/", "\\/", -1)
-		name = strings.Replace(name, "*", ".*", -1)
-		regex := regexp.MustCompile("^" + name + "$")
-
-		for key := range data {
-			match := regex.FindStringSubmatch(key)
-
-			if match == nil {
-				continue
+		if value, ok := data[joinNamespace(m.Namespace())]; ok {
+			metric := plugin.PluginMetricType{
+				Namespace_: m.Namespace(),
+				Data_:      value,
+				Source_:    hostname,
+				Timestamp_: time.Now(),
+				Version_:   m.Version(),
 			}
-
-			if value, ok := data[key]; ok {
-				metric := plugin.PluginMetricType{
-					Namespace_: splitNamespace(key),
-					Data_:      value,
-					Source_:    hostname,
-					Timestamp_: time.Now(),
-					Version_:   m.Version(),
-				}
-				metrics = append(metrics, metric)
-			}
+			metrics = append(metrics, metric)
 		}
+
 	}
 
 	return metrics, nil
@@ -135,9 +120,6 @@ func (dbiPlg *DbiPlugin) GetMetricTypes(cfg plugin.PluginConfigType) ([]plugin.P
 	for name := range metrics {
 		mts = append(mts, plugin.PluginMetricType{Namespace_: splitNamespace(name)})
 	}
-
-	// add supporting of whitecards
-	mts = append(mts, plugin.PluginMetricType{Namespace_: append(nsPrefix, "*")})
 
 	return mts, nil
 }
