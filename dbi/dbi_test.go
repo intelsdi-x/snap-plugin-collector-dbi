@@ -448,32 +448,15 @@ func TestCollectMetrics(t *testing.T) {
 			mockdata.QueryOutput, // outQuery
 		)
 
-		Convey("when task manifest contains metrics defined in explicit way", func() {
-			mts := mockdata.Mts
-			config := cdata.NewNode()
-			config.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
-			for i, _ := range mts {
-				mts[i].Config_ = config
-			}
+		mts := mockdata.Mts
+		config := cdata.NewNode()
+		config.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
+		mts[0].Config_ = config
 
-			So(func() { dbiPlugin.CollectMetrics(mts) }, ShouldNotPanic)
-			results, err := dbiPlugin.CollectMetrics(mts)
-			So(err, ShouldBeNil)
-			So(len(results), ShouldEqual, len(mts))
-		})
-
-		Convey("when task manifest contains a metric with asterisk", func() {
-			mtsOne := mockdata.MtsWhiteCard
-			mtsAll := mockdata.Mts
-			config := cdata.NewNode()
-			config.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
-			mtsOne[0].Config_ = config
-
-			So(func() { dbiPlugin.CollectMetrics(mtsOne) }, ShouldNotPanic)
-			results, err := dbiPlugin.CollectMetrics(mtsOne)
-			So(err, ShouldBeNil)
-			So(len(results), ShouldEqual, len(mtsAll))
-		})
+		So(func() { dbiPlugin.CollectMetrics(mts) }, ShouldNotPanic)
+		results, err := dbiPlugin.CollectMetrics(mts)
+		So(err, ShouldBeNil)
+		So(len(results), ShouldEqual, len(mts))
 
 	})
 

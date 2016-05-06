@@ -1,0 +1,32 @@
+{
+    "version": 1,
+    "schedule": {
+        "type": "simple",
+        "interval": "1s"
+    },
+    "workflow": {
+        "collect": {
+            "metrics": {
+                "/intel/dbi/cinder/services/backup/disabled": {},
+                "/intel/dbi/cinder/services/backup/down": {},
+                "/intel/dbi/cinder/services/backup/up": {},
+                "/intel/dbi/cinder/services/scheduler/disabled": {},
+                "/intel/dbi/cinder/services/scheduler/down": {},
+                "/intel/dbi/cinder/services/scheduler/up": {},
+                "/intel/dbi/cinder/services/volume/disabled": {},
+                "/intel/dbi/cinder/services/volume/down": {},
+                "/intel/dbi/cinder/services/volume/up": {}
+            },
+            "config": {},
+            "process": null,
+            "publish": [
+                {
+                    "plugin_name": "file",
+                    "config": {
+                        "file": "/tmp/published_dbi_cinder_services"
+                    }
+                }
+            ]
+        }
+    }
+}
