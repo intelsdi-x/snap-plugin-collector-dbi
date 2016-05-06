@@ -28,13 +28,14 @@ import (
 	"github.com/intelsdi-x/snap-plugin-utilities/config"
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
+	"github.com/intelsdi-x/snap/core"
 )
 
 const (
 	// Name of plugin
 	Name = "dbi"
 	// Version of plugin
-	Version = 3
+	Version = 4
 	// Type of plugin
 	Type = plugin.CollectorPluginType
 )
@@ -47,10 +48,10 @@ type DbiPlugin struct {
 }
 
 // CollectMetrics returns values of desired metrics defined in mts
-func (dbiPlg *DbiPlugin) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin.PluginMetricType, error) {
+func (dbiPlg *DbiPlugin) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, error) {
 
 	var err error
-	metrics := []plugin.PluginMetricType{}
+	metrics := []plugin.MetricType{}
 	data := map[string]interface{}{}
 
 	// initialization - done once
@@ -76,15 +77,13 @@ func (dbiPlg *DbiPlugin) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin
 		return nil, err
 	}
 
-	hostname, _ := os.Hostname()
-
 	for _, m := range mts {
-		if value, ok := data[joinNamespace(m.Namespace())]; ok {
-			metric := plugin.PluginMetricType{
+		if value, ok := data[m.Namespace().String()]; ok {
+			metric := plugin.MetricType{
 				Namespace_: m.Namespace(),
 				Data_:      value,
-				Source_:    hostname,
 				Timestamp_: time.Now(),
+				Tags_:      m.Tags(),
 				Version_:   m.Version(),
 			}
 			metrics = append(metrics, metric)
@@ -102,9 +101,9 @@ func (dbiPlg *DbiPlugin) GetConfigPolicy() (*cpolicy.ConfigPolicy, error) {
 }
 
 // GetMetricTypes returns metrics types exposed by snap-plugin-collector-dbi
-func (dbiPlg *DbiPlugin) GetMetricTypes(cfg plugin.PluginConfigType) ([]plugin.PluginMetricType, error) {
+func (dbiPlg *DbiPlugin) GetMetricTypes(cfg plugin.ConfigType) ([]plugin.MetricType, error) {
 	metrics := map[string]interface{}{}
-	mts := []plugin.PluginMetricType{}
+	mts := []plugin.MetricType{}
 
 	err := dbiPlg.setConfig(cfg)
 	if err != nil {
@@ -118,7 +117,7 @@ func (dbiPlg *DbiPlugin) GetMetricTypes(cfg plugin.PluginConfigType) ([]plugin.P
 	}
 
 	for name := range metrics {
-		mts = append(mts, plugin.PluginMetricType{Namespace_: splitNamespace(name)})
+		mts = append(mts, plugin.MetricType{Namespace_: core.NewNamespace(splitNamespace(name)...)})
 	}
 
 	return mts, nil

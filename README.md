@@ -167,24 +167,19 @@ Create configuration file for dbi plugin (see [examples/configs/setfiles/dbi_cin
 
 Set path to configuration file as `setfile` in Global Config (see [examples/configs/snap-config-sample.json](examples/configs/snap-config-sample.json)):
 ```json
-
+{
     "control": {
-        "cache_ttl": "5s"
-    },
-    "scheduler": {
-        "default_deadline": "5s",
-        "worker_pool_size": 5
-    },
-    "plugins": {
-        "collector": {
-            "dbi": {
-                "all": {
-                  "setfile": "$SNAP_DBI_PLUGIN_DIR/examples/configs/setfiles/dbi_cinder_services.json"
+        "plugins": {
+            "collector": {
+                "dbi": {
+                    "all": {
+                        "setfile": "$SNAP_DBI_PLUGIN_DIR/examples/configs/setfiles/dbi_cinder_services.json"
+                    }
                 }
-            }
-        },
-        "publisher": {},
-        "processor": {}
+            },
+            "publisher": {},
+            "processor": {}
+        }
     }
 }
 
@@ -200,7 +195,7 @@ Load dbi plugin for collecting:
 $ snapctl plugin load $SNAP_DBI_PLUGIN_DIR/build/rootfs/snap-plugin-collector-dbi
 Plugin loaded
 Name: dbi
-Version: 3
+Version: 4
 Type: collector
 Signed: false
 Loaded Time: Tue, 05 Apr 2016 07:49:53 UTC
@@ -211,15 +206,15 @@ See available metrics:
 $ snapctl metric list
 
 NAMESPACE                                        VERSIONS
-/intel/dbi/cinder/services/backup/disabled       3
-/intel/dbi/cinder/services/backup/down           3
-/intel/dbi/cinder/services/backup/up             3
-/intel/dbi/cinder/services/scheduler/disabled    3
-/intel/dbi/cinder/services/scheduler/down        3
-/intel/dbi/cinder/services/scheduler/up          3
-/intel/dbi/cinder/services/volume/disabled       3
-/intel/dbi/cinder/services/volume/down           3
-/intel/dbi/cinder/services/volume/up             3
+/intel/dbi/cinder/services/backup/disabled       4
+/intel/dbi/cinder/services/backup/down           4
+/intel/dbi/cinder/services/backup/up             4
+/intel/dbi/cinder/services/scheduler/disabled    4
+/intel/dbi/cinder/services/scheduler/down        4
+/intel/dbi/cinder/services/scheduler/up          4
+/intel/dbi/cinder/services/volume/disabled       4
+/intel/dbi/cinder/services/volume/down           4
+/intel/dbi/cinder/services/volume/up             4
 ```
 
 Load file plugin for publishing:
@@ -227,7 +222,7 @@ Load file plugin for publishing:
 $ snapctl plugin load $SNAP_DIR/build/plugin/snap-publisher-file
 Plugin loaded
 Name: file
-Version: 3
+Version: 4
 Type: publisher
 Signed: false
 Loaded Time: Tue, 05 Apr 2016 07:49:18 UTC
