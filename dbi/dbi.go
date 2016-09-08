@@ -17,7 +17,6 @@ limitations under the License.
 package dbi
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -62,15 +61,12 @@ func (dbiPlg *DbiPlugin) CollectMetrics(mts []plugin.MetricType) ([]plugin.Metri
 			// Cannot obtained sql settings
 			return nil, err
 		}
-
 		err = openDBs(dbiPlg.databases)
 		if err != nil {
 			return nil, err
 		}
-
 		dbiPlg.initialized = true
 	} // end of initialization
-
 	// execute dbs queries and get output
 	data, err = dbiPlg.executeQueries()
 	if err != nil {
@@ -153,7 +149,6 @@ func (dbiPlg *DbiPlugin) getMetrics() (map[string]interface{}, error) {
 	metrics := map[string]interface{}{}
 
 	err := openDBs(dbiPlg.databases)
-	defer closeDBs(dbiPlg.databases)
 
 	if err != nil {
 		return nil, err
@@ -165,6 +160,14 @@ func (dbiPlg *DbiPlugin) getMetrics() (map[string]interface{}, error) {
 		return nil, err
 	}
 
+	errors := closeDBs(dbiPlg.databases)
+	if errors != nil {
+		var dbs []string
+		for r := range errors {
+			dbs = append(dbs, errors[r].Error())
+		}
+		return metrics, fmt.Errorf("Cannot close database(s):\n %s", dbs)
+	}
 	return metrics, nil
 }
 
@@ -175,7 +178,6 @@ func (dbiPlg *DbiPlugin) executeQueries() (map[string]interface{}, error) {
 
 	//execute queries for each defined databases
 	for dbName, db := range dbiPlg.databases {
-
 		if !db.Active {
 			//skip if db is not active (none established connection)
 			fmt.Fprintf(os.Stderr, "Cannot execute queries for database %s, is inactive (connection was not established properly)\n", dbName)
@@ -187,7 +189,6 @@ func (dbiPlg *DbiPlugin) executeQueries() (map[string]interface{}, error) {
 			statement := dbiPlg.queries[queryName].Statement
 
 			out, err := db.Executor.Query(queryName, statement)
-
 			if err != nil {
 				// log failing query and take the next one
 				fmt.Fprintf(os.Stderr, "Cannot execute query %s for database %s", queryName, dbName)
@@ -196,7 +197,6 @@ func (dbiPlg *DbiPlugin) executeQueries() (map[string]interface{}, error) {
 
 			for resName, res := range dbiPlg.queries[queryName].Results {
 				instanceOk := false
-
 				// to avoid inconsistency of columns names caused by capital letters (especially for postgresql driver)
 				instanceFrom := strings.ToLower(res.InstanceFrom)
 				valueFrom := strings.ToLower(res.ValueFrom)
@@ -227,7 +227,7 @@ func (dbiPlg *DbiPlugin) executeQueries() (map[string]interface{}, error) {
 	} // end of range databases
 
 	if len(data) == 0 {
-		return nil, errors.New("No data obtained from defined queries")
+		return nil, fmt.Errorf("No data obtained from defined queries")
 	}
 
 	return data, nil

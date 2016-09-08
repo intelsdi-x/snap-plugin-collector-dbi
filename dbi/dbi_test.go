@@ -105,9 +105,7 @@ func TestGetMetricTypes(t *testing.T) {
 		Convey("when path to setfile is incorrect", func() {
 			cfg := plugin.NewPluginConfigType()
 			dbiPlugin := New()
-			// mockdata.FileName has not existed yet
-			deleteMockFile()
-			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
+			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: "./noFile.json"})
 			So(func() { dbiPlugin.GetMetricTypes(cfg) }, ShouldNotPanic)
 			results, err := dbiPlugin.GetMetricTypes(cfg)
 			So(err, ShouldNotBeNil)
@@ -127,12 +125,21 @@ func TestGetMetricTypes(t *testing.T) {
 			So(results, ShouldBeNil)
 		})
 
+		Convey("when there is wrong driver typed", func() {
+			cfg := plugin.NewPluginConfigType()
+			dbiPlugin := New()
+			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.SetfileIncorr})
+
+			So(func() { dbiPlugin.GetMetricTypes(cfg) }, ShouldNotPanic)
+			results, err := dbiPlugin.GetMetricTypes(cfg)
+			So(err, ShouldNotBeNil)
+			So(results, ShouldBeNil)
+		})
+
 		Convey("when cannot open db", func() {
 			cfg := plugin.NewPluginConfigType()
 			dbiPlugin := New()
-			createMockFile()
-			defer deleteMockFile()
-			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
+			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.SetfileCorr})
 			mc := &mcMock{stmts: make(map[string]*sql.Stmt)}
 
 			//mockExecution outputs
@@ -154,9 +161,9 @@ func TestGetMetricTypes(t *testing.T) {
 		Convey("when cannot open, neither close db", func() {
 			cfg := plugin.NewPluginConfigType()
 			dbiPlugin := New()
-			createMockFile()
-			defer deleteMockFile()
-			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
+			//createMockFile(correct)
+			//defer deleteMockFile()
+			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.SetfileCorr})
 			mc := &mcMock{stmts: make(map[string]*sql.Stmt)}
 
 			//mockExecution outputs
@@ -178,9 +185,7 @@ func TestGetMetricTypes(t *testing.T) {
 		Convey("when cannot ping the open db", func() {
 			cfg := plugin.NewPluginConfigType()
 			dbiPlugin := New()
-			createMockFile()
-			defer deleteMockFile()
-			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
+			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.SetfileCorr})
 			mc := &mcMock{stmts: make(map[string]*sql.Stmt)}
 
 			//mockExecution outputs
@@ -202,9 +207,7 @@ func TestGetMetricTypes(t *testing.T) {
 		Convey("when cannot switch to selected db", func() {
 			cfg := plugin.NewPluginConfigType()
 			dbiPlugin := New()
-			createMockFile()
-			defer deleteMockFile()
-			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
+			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.SetfileCorr})
 			mc := &mcMock{stmts: make(map[string]*sql.Stmt)}
 
 			//mockExecution outputs
@@ -226,9 +229,7 @@ func TestGetMetricTypes(t *testing.T) {
 		Convey("when execution of query returns error", func() {
 			cfg := plugin.NewPluginConfigType()
 			dbiPlugin := New()
-			createMockFile()
-			defer deleteMockFile()
-			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
+			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.SetfileCorr})
 			mc := &mcMock{stmts: make(map[string]*sql.Stmt)}
 
 			//mockExecution outputs
@@ -250,9 +251,7 @@ func TestGetMetricTypes(t *testing.T) {
 		Convey("when query returns empty output", func() {
 			cfg := plugin.NewPluginConfigType()
 			dbiPlugin := New()
-			createMockFile()
-			defer deleteMockFile()
-			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
+			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.SetfileCorr})
 
 			mc := &mcMock{stmts: make(map[string]*sql.Stmt)}
 
@@ -276,9 +275,7 @@ func TestGetMetricTypes(t *testing.T) {
 		Convey("successfully obtain metrics name", func() {
 			cfg := plugin.NewPluginConfigType()
 			dbiPlugin := New()
-			createMockFile()
-			defer deleteMockFile()
-			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
+			cfg.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.SetfileCorr})
 
 			mc := &mcMock{stmts: make(map[string]*sql.Stmt)}
 
@@ -319,14 +316,13 @@ func TestCollectMetrics(t *testing.T) {
 
 		// set metrics config
 		config := cdata.NewNode()
-		config.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
+		config.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.SetfileCorr})
 		for i, _ := range mts {
 			mts[i].Config_ = config
 		}
 
 		Convey("incorrect path to setfile", func() {
-			// mockdata.FileName has not existed (remove it just in case)
-			deleteMockFile()
+			config.AddItem("setfile", ctypes.ConfigValueStr{Value: "./noFile.json"})
 			dbiPlugin := New()
 			So(func() { dbiPlugin.CollectMetrics(mts) }, ShouldNotPanic)
 			results, err := dbiPlugin.CollectMetrics(mts)
@@ -338,6 +334,7 @@ func TestCollectMetrics(t *testing.T) {
 			dbiPlugin := New()
 			os.Create(mockdata.FileName)
 			defer os.Remove(mockdata.FileName)
+			config.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
 			So(func() { dbiPlugin.CollectMetrics(mts) }, ShouldNotPanic)
 			results, err := dbiPlugin.CollectMetrics(mts)
 			So(err, ShouldNotBeNil)
@@ -350,13 +347,10 @@ func TestCollectMetrics(t *testing.T) {
 
 		mts := mockdata.Mts
 		config := cdata.NewNode()
-		config.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
+		config.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.SetfileCorr})
 		for i, _ := range mts {
 			mts[i].Config_ = config
 		}
-
-		createMockFile()
-		defer deleteMockFile()
 
 		Convey("when cannot connect to databases", func() {
 			dbiPlugin := New()
@@ -402,8 +396,6 @@ func TestCollectMetrics(t *testing.T) {
 
 	Convey("when metric's value is a timestamp - special usecase", t, func() {
 		// to cover func fixDataType for time.Time case
-		createMockFile()
-		defer deleteMockFile()
 
 		dbiPlugin := New()
 		mc := &mcMock{stmts: make(map[string]*sql.Stmt)}
@@ -420,7 +412,7 @@ func TestCollectMetrics(t *testing.T) {
 
 		mts := mockdata.Mts
 		config := cdata.NewNode()
-		config.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
+		config.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.SetfileCorr})
 		for i, _ := range mts {
 			mts[i].Config_ = config
 		}
@@ -432,8 +424,8 @@ func TestCollectMetrics(t *testing.T) {
 	})
 
 	Convey("collect metrics successfully", t, func() {
-		createMockFile()
-		defer deleteMockFile()
+		//createMockFile(correct)
+		//defer deleteMockFile()
 
 		dbiPlugin := New()
 		mc := &mcMock{stmts: make(map[string]*sql.Stmt)}
@@ -450,7 +442,7 @@ func TestCollectMetrics(t *testing.T) {
 
 		mts := mockdata.Mts
 		config := cdata.NewNode()
-		config.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.FileName})
+		config.AddItem("setfile", ctypes.ConfigValueStr{Value: mockdata.SetfileCorr})
 		mts[0].Config_ = config
 
 		So(func() { dbiPlugin.CollectMetrics(mts) }, ShouldNotPanic)
@@ -460,15 +452,4 @@ func TestCollectMetrics(t *testing.T) {
 
 	})
 
-}
-
-func createMockFile() {
-	deleteMockFile()
-
-	f, _ := os.Create(mockdata.FileName)
-	f.Write(mockdata.FileCont)
-}
-
-func deleteMockFile() {
-	os.Remove(mockdata.FileName)
 }

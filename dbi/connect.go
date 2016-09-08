@@ -19,7 +19,6 @@ package dbi
 import (
 	"errors"
 	"fmt"
-	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
@@ -41,7 +40,6 @@ func getDefaultPort(driver string) string {
 
 // openDB opens a database and verifies connection by calling ping to it
 func openDB(db *dtype.Database) error {
-
 	var dsn string
 
 	// if port is not defined, set defaults
@@ -61,7 +59,6 @@ func openDB(db *dtype.Database) error {
 	default:
 		return fmt.Errorf("SQL Driver %s is not supported", db.Driver)
 	}
-
 	err := db.Executor.Open(db.Driver, dsn)
 	if err != nil {
 		return err
@@ -90,11 +87,8 @@ func openDBs(dbs map[string]*dtype.Database) error {
 	once := false
 	for i := range dbs {
 		err := openDB(dbs[i])
-
 		if err != nil {
-			closeDB(dbs[i])
-			fmt.Fprintf(os.Stderr, "Cannot open database `%+v`, err=%+v\n", dbs[i].DBName, err)
-			continue
+			return err
 		}
 		once = true
 	}
@@ -108,20 +102,25 @@ func openDBs(dbs map[string]*dtype.Database) error {
 
 // closeDB closes a database
 func closeDB(db *dtype.Database) error {
-	err := db.Executor.Close()
-	if err != nil {
-		return err
+	if db.Active {
+		err := db.Executor.Close()
+		if err != nil {
+			return err
+		}
+		db.Active = false
 	}
-	db.Active = false
 	return nil
 }
 
 // closeDBs closes databases (exported due to use in main.go)
-func closeDBs(dbs map[string]*dtype.Database) {
+func closeDBs(dbs map[string]*dtype.Database) []error {
+	//errors := []error{}
+	var errors []error
 	for i := range dbs {
 		err := closeDB(dbs[i])
 		if err != nil {
-			fmt.Fprintf(os.Stdout, "Cannot close connection to database %+v, err=%+v\n", dbs[i].DBName, err)
+			errors = append(errors, err)
 		}
 	}
+	return errors
 }
