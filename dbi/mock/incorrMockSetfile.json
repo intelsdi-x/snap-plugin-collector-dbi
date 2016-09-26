@@ -1,0 +1,85 @@
+{
+      "queries": [
+          {
+              "name": "q1",
+              "statement": "statementA",
+              "results": [
+                  {   "name": "",
+                      "instance_from": "category",
+                      "value_from": "value"
+                  }
+              ]
+          },
+          {
+              "name": "q2",
+              "statement": "statementB",
+              "results": [
+                  {
+                      "name": "rName1",
+                      "instance_from": "category",
+                      "instance_prefix": "category prefix",
+                      "value_from": "value"
+                  },
+                  {
+                      "name": "rName2",
+                      "instance_from": "category",
+                      "value_from": "value"
+                  }
+              ]
+          }
+      ],
+      "databases": [
+          {
+              "name": "dbName1",
+              "driver": "mysql",
+              "driver_option": {
+                  "host": "localhost",
+                  "port": "3306",
+                  "username": "tester",
+                  "password": "passwd",
+                  "dbname": "mydb"
+              },
+              "dbqueries": [
+                  {
+                      "query": "q1"
+                  }
+              ]
+          },
+          {
+              "name": "dbName2",
+              "driver": "postgres",
+              "driver_option": {
+                  "host": "localhost",
+                  "username": "tester",
+                  "password": "passwd",
+                  "dbname": "mydb"
+              },
+              "selectdb": "slctdb",
+              "dbqueries": [
+                  {
+                      "query": "q1"
+                  },
+                  {
+                      "query": "q2"
+                  }
+              ]
+          },
+
+          {
+              "name": "db3",
+              "driver": "unknown",
+              "driver_option": {
+                  "host": "localhost",
+                  "username": "tester",
+                  "password": "passwd",
+                  "dbname": "mydb"
+              },
+
+              "dbqueries": [
+                  {
+                      "query": "q1"
+                  }
+              ]
+          }
+      ]
+  }

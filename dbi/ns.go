@@ -16,7 +16,9 @@ limitations under the License.
 
 package dbi
 
-import "strings"
+import (
+	"strings"
+)
 
 // nsPrefix is prefix of metrics namespace
 var nsPrefix = []string{"intel", "dbi"}
