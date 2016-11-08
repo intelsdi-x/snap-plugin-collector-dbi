@@ -1,4 +1,4 @@
-# snap collector plugin - dbi
+# Snap collector plugin - dbi
 
 This plugin connects to various databases, executes SQL statements and reads back the results. 
 
@@ -6,7 +6,7 @@ The plugin is a generic plugin. You can configure how each column is to be inter
 
 Depending on the configuration, the returned values are converted into metrics.
 
-The plugin is used in the [snap framework] (http://github.com/intelsdi-x/snap).				
+The plugin is used in the [Snap framework] (http://github.com/intelsdi-x/snap).				
 
 1. [Getting Started](#getting-started)
   * [System Requirements](#system-requirements)
@@ -30,6 +30,9 @@ The plugin is used in the [snap framework] (http://github.com/intelsdi-x/snap).
 - Access to database (currently the following SQL Drivers are supported: **MySQL**, **PostgreSQL**)
 
 ### Installation
+#### Download the plugin binary:
+
+You can get the pre-built binaries for your OS and architecture from the plugin's [GitHub Releases](https://github.com/intelsdi-x/snap-plugin-collector-dbi/releases) page. Download the plugin from the latest release and load it into `snapd` (`/opt/snap/plugins` is the default location for Snap packages).
 
 #### To build the plugin binary:
 
@@ -40,15 +43,15 @@ Clone repo into `$GOPATH/src/github.com/intelsdi-x/`:
 $ git clone https://github.com/<yourGithubID>/snap-plugin-collector-dbi.git
 ```
 
-Build the snap dbi plugin by running make within the cloned repo:
+Build the Snap dbi plugin by running make within the cloned repo:
 ```
 $ make
 ```
-This builds the plugin in `/build/rootfs/`
+This builds the plugin in `./build/`
 
 ### Configuration and Usage
 
-* Set up the [snap framework](https://github.com/intelsdi-x/snap/blob/master/README.md#getting-started)
+* Set up the [Snap framework](https://github.com/intelsdi-x/snap#getting-started)
 
 * Create configuration file (called as a setfile) in which will be defined databases, queries and rules how interpret the results, see exemplary in [examples/configs/setfiles](examples/configs/setfiles)
 
@@ -96,11 +99,10 @@ Task manifest contains names of metrics which will be collected
 
 By default metrics are gathered once per second.
 
-### Examples
+### Example
+Example of running Snap dbi collector retrieving the metrics about cinder services and writing the results to file.
 
-Example of running snap dbi collector retrieving the metrics about cinder services and writing the results to file:
-
-Create configuration file for dbi plugin (see [examples/configs/setfiles/dbi_cinder_services.json](examples/configs/setfiles/dbi_cinder_services.json))
+Create configuration file (`setfile`) for dbi plugin (see [examples/configs/setfiles/dbi_cinder_services.json](examples/configs/setfiles/dbi_cinder_services.json)).
 ```json
 {
     "databases": [
@@ -165,7 +167,7 @@ Create configuration file for dbi plugin (see [examples/configs/setfiles/dbi_cin
 ```
 
 
-Set path to configuration file as `setfile` in Global Config (see [examples/configs/snap-config-sample.json](examples/configs/snap-config-sample.json)):
+Create global configuration file for Snap and set path to `setfile` (see [examples/configs/snap-config-sample.json](examples/configs/snap-config-sample.json)):
 ```json
 {
     "control": {
@@ -173,7 +175,7 @@ Set path to configuration file as `setfile` in Global Config (see [examples/conf
             "collector": {
                 "dbi": {
                     "all": {
-                        "setfile": "$SNAP_DBI_PLUGIN_DIR/examples/configs/setfiles/dbi_cinder_services.json"
+                        "setfile": "/path/to/dbi_cinder_services.json"
                     }
                 }
             },
@@ -184,21 +186,30 @@ Set path to configuration file as `setfile` in Global Config (see [examples/conf
 }
 
 ```
+Run the Snap daemon with created global config:
+```
+$ snapd -l 1 -t 0 --config snap-config-sample.json
+```
 
-Run the snap daemon with Global Config:
+Download and load dbi plugin for collecting and file publisher:
 ```
-$ snapd -l 1 -t 0 --config $SNAP_DBI_PLUGIN_DIR/examples/configs/snap-config-sample.json
-```
-
-Load dbi plugin for collecting:
-```
-$ snapctl plugin load $SNAP_DBI_PLUGIN_DIR/build/rootfs/snap-plugin-collector-dbi
+$ wget http://snap.ci.snap-telemetry.io/plugins/snap-plugin-collector-dbi/latest/linux/x86_64/snap-plugin-collector-dbi
+$ wget http://snap.ci.snap-telemetry.io/plugins/snap-plugin-publisher-file/latest/linux/x86_64/snap-plugin-publisher-file
+$ chmod 755 snap-plugin-*
+$ snapctl plugin load snap-plugin-collector-dbi
 Plugin loaded
 Name: dbi
 Version: 4
 Type: collector
 Signed: false
 Loaded Time: Tue, 05 Apr 2016 07:49:53 UTC
+$ snapctl plugin load snap-plugin-publisher-file
+Plugin loaded
+Name: file
+Version: 4
+Type: publisher
+Signed: false
+Loaded Time: Tue, 05 Apr 2016 07:49:54 UTC
 ```
 
 See available metrics:
@@ -217,18 +228,7 @@ NAMESPACE                                        VERSIONS
 /intel/dbi/cinder/services/volume/up             4
 ```
 
-Load file plugin for publishing:
-```
-$ snapctl plugin load $SNAP_DIR/build/plugin/snap-publisher-file
-Plugin loaded
-Name: file
-Version: 4
-Type: publisher
-Signed: false
-Loaded Time: Tue, 05 Apr 2016 07:49:18 UTC
-```
-
-Create a task JSON file using for creating a task collecting all available dbi metrics about cinder services (see [examples/tasks/dbi_cinder_services-file.json](examples/tasks/dbi_cinder_services-file.json)):
+Create and load example task file, which describes collection of cinder services dbi metrics (see [examples/tasks/dbi_cinder_services-file.json](examples/tasks/dbi_cinder_services-file.json)):
 ```json
 {
     "version": 1,
@@ -265,9 +265,8 @@ Create a task JSON file using for creating a task collecting all available dbi m
     
 ```
 
-Create a task:
 ```
-$ snapctl task create -t $SNAP_DBI_PLUGIN_DIR/examples/tasks/dbi_cinder_services-file.json
+$ snapctl task create -t dbi_cinder_services-file.json
 Using task manifest to create task
 Task created
 ID: da9188b4-d592-4b45-b108-de06a8fdee1a
@@ -291,12 +290,12 @@ NAMESPACE                                        DATA                    TIMESTA
 /intel/dbi/cinder/services/volume/down           0                       2016-04-05 08:43:12.135738704 +0000 UTC         node-22.domain.tld
 /intel/dbi/cinder/services/volume/up             1                       2016-04-05 08:43:12.135785904 +0000 UTC         node-22.domain.tld
 ```
-(Keys `ctrl+c` terminate task watcher)
+(`ctrl+c` terminates task watcher)
 
 
-These data are published to file and stored there (in this example in /tmp/published_dbi_cinder_services.txt).
+Metrics are published to file (in this example in /tmp/published_dbi_cinder_services.txt).
 
-Stop task:
+Stopping task:
 ```
 $ snapctl task stop da9188b4-d592-4b45-b108-de06a8fdee1a
 Task stopped:
@@ -310,11 +309,9 @@ There isn't a current roadmap for this plugin, but it is in active development. 
 If you have a feature request, please add it as an [issue](https://github.com/intelsdi-x/snap-plugin-collector-dbi/issues).
 
 ## Community Support
-This repository is one of **many** plugins in the **Snap Framework**: a powerful telemetry agent framework. To reach out on other use cases, visit:
+This repository is one of **many** plugins in the **Snap Framework**: a powerful telemetry agent framework. The full project is at http://github.com/intelsdi-x/snap.
 
-* [Snap Gitter channel] (https://gitter.im/intelsdi-x/snap)
-
-The full project is at http://github.com:intelsdi-x/snap.
+To reach out to other users, head to the [main framework](https://github.com/intelsdi-x/snap#community-support) or visit [Slack](http://slack.snap-telemetry.io).
 
 ## Contributing
 We love contributions!
