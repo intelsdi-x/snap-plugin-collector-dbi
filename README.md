@@ -32,7 +32,7 @@ The plugin is used in the [Snap framework] (http://github.com/intelsdi-x/snap).
 ### Installation
 #### Download the plugin binary:
 
-You can get the pre-built binaries for your OS and architecture from the plugin's [GitHub Releases](https://github.com/intelsdi-x/snap-plugin-collector-dbi/releases) page. Download the plugin from the latest release and load it into `snapd` (`/opt/snap/plugins` is the default location for Snap packages).
+You can get the pre-built binaries for your OS and architecture from the plugin's [GitHub Releases](https://github.com/intelsdi-x/snap-plugin-collector-dbi/releases) page. Download the plugin from the latest release and load it into `snapteld` (`/opt/snap/plugins` is the default location for Snap packages).
 
 #### To build the plugin binary:
 
@@ -188,7 +188,7 @@ Create global configuration file for Snap and set path to `setfile` (see [exampl
 ```
 Run the Snap daemon with created global config:
 ```
-$ snapd -l 1 -t 0 --config snap-config-sample.json
+$ snapteld -l 1 -t 0 --config snap-config-sample.json
 ```
 
 Download and load dbi plugin for collecting and file publisher:
@@ -196,14 +196,14 @@ Download and load dbi plugin for collecting and file publisher:
 $ wget http://snap.ci.snap-telemetry.io/plugins/snap-plugin-collector-dbi/latest/linux/x86_64/snap-plugin-collector-dbi
 $ wget http://snap.ci.snap-telemetry.io/plugins/snap-plugin-publisher-file/latest/linux/x86_64/snap-plugin-publisher-file
 $ chmod 755 snap-plugin-*
-$ snapctl plugin load snap-plugin-collector-dbi
+$ snaptel plugin load snap-plugin-collector-dbi
 Plugin loaded
 Name: dbi
 Version: 4
 Type: collector
 Signed: false
 Loaded Time: Tue, 05 Apr 2016 07:49:53 UTC
-$ snapctl plugin load snap-plugin-publisher-file
+$ snaptel plugin load snap-plugin-publisher-file
 Plugin loaded
 Name: file
 Version: 4
@@ -214,7 +214,7 @@ Loaded Time: Tue, 05 Apr 2016 07:49:54 UTC
 
 See available metrics:
 ```
-$ snapctl metric list
+$ snaptel metric list
 
 NAMESPACE                                        VERSIONS
 /intel/dbi/cinder/services/backup/disabled       4
@@ -266,17 +266,17 @@ Create and load example task file, which describes collection of cinder services
 ```
 
 ```
-$ snapctl task create -t dbi_cinder_services-file.json
+$ snaptel task create -t dbi_cinder_services-file.json
 Using task manifest to create task
 Task created
 ID: da9188b4-d592-4b45-b108-de06a8fdee1a
 Name: Task-da9188b4-d592-4b45-b108-de06a8fdee1a
 State: Running
 ```
-See sample output from `snapctl task watch <task_id>`
+See sample output from `snaptel task watch <task_id>`
 
 ```
-$ snapctl task watch da9188b4-d592-4b45-b108-de06a8fdee1a
+$ snaptel task watch da9188b4-d592-4b45-b108-de06a8fdee1a
 
 Watching Task (da9188b4-d592-4b45-b108-de06a8fdee1a):
 NAMESPACE                                        DATA                    TIMESTAMP                                       SOURCE
@@ -297,7 +297,7 @@ Metrics are published to file (in this example in /tmp/published_dbi_cinder_serv
 
 Stopping task:
 ```
-$ snapctl task stop da9188b4-d592-4b45-b108-de06a8fdee1a
+$ snaptel task stop da9188b4-d592-4b45-b108-de06a8fdee1a
 Task stopped:
 ID: da9188b4-d592-4b45-b108-de06a8fdee1a
 ```
